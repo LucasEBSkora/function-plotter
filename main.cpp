@@ -9,6 +9,8 @@
 #include "Texture.hpp"
 #include "Camera.hpp"
 
+#include "FunctionPlotGenerator.hpp"
+
 #include <GLFW/glfw3.h>
 #include <GL/glew.h>
 
@@ -21,10 +23,18 @@ void error_callback(int error, const char* description) {
     std::cout << description << std::endl;
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
     GLFWwindow* window;
-    
+
+    if (argc != 2) {
+      std::cout << "usage: ./build/plot N\nWhere N is the number of slices to use" << std::endl;
+      exit(-1);
+    }
+
+
+
+    const unsigned int N = atoi(argv[1]);
 
     glfwSetErrorCallback(error_callback);
     /* Initialize the library */
@@ -65,34 +75,22 @@ int main(void)
     std::cout << glGetString(GL_VERSION) << std::endl;
     {
 
-      float positions[] = {
-        -0.5f, -0.5f, 0.0f, 0.0f,
-         0.5f, -0.5f, 1.0f, 0.0f,
-         0.5f,  0.5f, 1.0f, 1.0f,
-        -0.5f,  0.5f, 0.0f, 1.0f
-      };
 
-      unsigned int indices[] = {
-        0, 1, 2,
-        2, 3, 0
-      };
+      FunctionPlotGenerator sphere([](float theta, float phi){return 0.5f;}, N, 1.0f);
 
+      sphere.fillBuffers();
       //docs.gl
-
-      Texture texture("res/textures/Kuo-Toa+Druid-finished.png");
-      texture.bind();
-
       
       VertexArray va;
-      VertexBuffer vb(positions, 4 * (2 + 2)* sizeof (float));
+      VertexBuffer vb(sphere.getVertexBufferData(), sphere.getVertexBufferDataCount() * sizeof (float));
       
       VertexBufferLayout layout;
-      layout.Push<float>(2);
-      layout.Push<float>(2);
+      layout.Push<float>(3);
       va.addBuffer(vb, layout);
 
-      IndexBuffer ib(indices, 6);
+      IndexBuffer lines(sphere.getLineIndexBufferData(), sphere.getLineIndexBufferDataCount());
 
+      IndexBuffer surface(sphere.getSurfaceIndexBufferData(), sphere.getSurfaceIndexBufferDataCount());
 
       Shader shader("res/shaders/basic.shader");
       
@@ -100,11 +98,11 @@ int main(void)
 
       Camera camera;
       camera.setProjAspectRatio(aspect_ratio, 1.0f);
-      camera.setCameraPos(0.0f, 0.25f, 0.f);
-      camera.setModelPos(0.75f, 0.0f, 0.0f);
+      camera.setCameraPos(0.0f, 0.0f, 0.f);
+      camera.rotateCamera(0.1*M_PI, 1.0f, 0.0f, 0.0f);
+      camera.setModelPos(0.0f, 0.0f, 0.0f);
 
       shader.setUniforMat4f("u_MVP", camera.getResult());
-      shader.setUniform1i("u_Texture", 0);
 
      Renderer renderer;
 
@@ -114,20 +112,25 @@ int main(void)
       float inc1 = 0.01f;
       float inc2 = 0.005f;
       float inc3 = 0.02f;
+
+      double angle = 0.0;
+      double incr = 0.0005;
+
       /* Loop until the user closes the window */
       while (!glfwWindowShouldClose(window)) {
           /* Render here */
 
           renderer.clear();
 
-          shader.setUniform4f("u_Color", festa1, festa2, festa3, 1.0f);
-
-          renderer.draw(GL_TRIANGLES, va, ib, shader);
-
-          camera.resetCameraRotation(festa1*6.28f, 0.0f, 1.0f, 0.0f);
-          camera.resetModelRotation(festa2*6.28f, 1.0f, 0.0f, 0.0f);
+          camera.resetModelRotation(angle, .0f, 1.0f, 0.0f);
           shader.setUniforMat4f("u_MVP", camera.getResult());
 
+          shader.setUniform4f("u_Color", 1.0 - festa1, 1.0 - festa2, 1.0f - festa3, 0.5f);
+          renderer.draw(GL_TRIANGLES, va, surface, shader);
+          
+          shader.setUniform4f("u_Color", festa1, festa2, festa3, 1.0f);
+          renderer.draw(GL_LINES, va, lines, shader);
+          
           /* Swap front and back buffers */
           glfwSwapBuffers(window);
 
@@ -137,6 +140,7 @@ int main(void)
           festa1 += inc1;
           festa2 += inc2;
           festa3 += inc3;
+          angle += incr;
           if (festa1 > 1.0f || festa1 < 0.0f) inc1 *= -1;
           if (festa2 > 1.0f || festa2 < 0.0f) inc2 *= -1;
           if (festa3 > 1.0f || festa3 < 0.0f) inc3 *= -1;
