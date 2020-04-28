@@ -1,0 +1,5 @@
+# Dependências
+
+## glfw
+## glew
+## glm
