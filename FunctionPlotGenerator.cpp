@@ -17,10 +17,10 @@ FunctionPlotGenerator::~FunctionPlotGenerator() {
 }
 
 const float* FunctionPlotGenerator::getVertexBufferData() const {
-  unsigned int i = 0;
-  while (i < vertexBufferData.size()) {
-    std::cout << '(' << vertexBufferData[i++] << ',' << vertexBufferData[i++] << ',' << vertexBufferData[i++] << ')' << std::endl;
-  }
+  // unsigned int i = 0;
+  // while (i < vertexBufferData.size()) {
+  //   std::cout << '(' << vertexBufferData[i++] << ',' << vertexBufferData[i++] << ',' << vertexBufferData[i++] << ')' << std::endl;
+  // }
   return vertexBufferData.data();
 }
 
@@ -29,10 +29,10 @@ unsigned int FunctionPlotGenerator::getVertexBufferDataCount() const {
 }
 
 const unsigned int* FunctionPlotGenerator::getSurfaceIndexBufferData() const {
-  unsigned int i = 0;
-  while (i < surfaceIndexBufferData.size()) {
-    std::cout << '(' << surfaceIndexBufferData[i++] << ',' << surfaceIndexBufferData[i++] << ',' << surfaceIndexBufferData[i++] << ')' << std::endl;
-  }
+  // unsigned int i = 0;
+  // while (i < surfaceIndexBufferData.size()) {
+  //   std::cout << '(' << surfaceIndexBufferData[i++] << ',' << surfaceIndexBufferData[i++] << ',' << surfaceIndexBufferData[i++] << ')' << std::endl;
+  // }
   return surfaceIndexBufferData.data();
 }
 
@@ -75,17 +75,19 @@ void FunctionPlotGenerator::fillDataBuffer() {
 }
 
 void FunctionPlotGenerator::fillLineIndexBuffer() {
-    
-    //horizontal lines
-  for (unsigned int phi = 1; phi < slices; ++phi) {
+  
+  unsigned int step = floor(slices/10) + 1;
+  
+  //horizontal lines
+  for (unsigned int phi = 1; phi < slices; phi += step) {
     for (unsigned int theta = 0; theta < 2*slices; ++theta) {
       lineIndexBufferData.push_back(getVertexBufferCoords(theta, phi));
       lineIndexBufferData.push_back(getVertexBufferCoords(theta + 1, phi));
     } 
   }
 
-  std::cout.flush();
-  for (unsigned int theta = 0; theta < 2*slices; ++theta) {
+  //vertical lines
+  for (unsigned int theta = 0; theta < 2*slices; theta += step) {
     for (unsigned int phi = 0; phi < slices; ++phi) {
       lineIndexBufferData.push_back(getVertexBufferCoords(theta, phi));
       lineIndexBufferData.push_back(getVertexBufferCoords(theta, phi + 1));

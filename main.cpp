@@ -51,7 +51,7 @@ int main(int argc, char **argv)
     /* Create a windowed mode window and its OpenGL context */
     int w_width = 1080;
     int w_height = 720;
-    window = glfwCreateWindow(w_width, w_height, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(w_width, w_height, "Spherical Plotter", NULL, NULL);
     float aspect_ratio = (float)w_width/w_height;
     if (!window)
     {
@@ -76,7 +76,27 @@ int main(int argc, char **argv)
     {
 
 
-      FunctionPlotGenerator sphere([](float theta, float phi){return 0.5f;}, N, 1.0f);
+      FunctionPlotGenerator sphere(
+        [](float theta, float phi) {
+          return  
+            
+              (log(1 + phi)*phi
+              + sin((3.0f/2.0f)*phi))
+              *(
+                
+              2*sqrt(
+                1/(1+5*pow(sin(theta), 2))
+              )
+
+              )
+            // + 2*(
+            //   (pow(cos(theta), 2))/2.0f 
+            //   + 0.2  
+            // )
+              
+            ;
+        },
+        N, 0.20f);
 
       sphere.fillBuffers();
       //docs.gl
@@ -98,23 +118,16 @@ int main(int argc, char **argv)
 
       Camera camera;
       camera.setProjAspectRatio(aspect_ratio, 1.0f);
-      camera.setCameraPos(0.0f, 0.0f, 0.f);
-      camera.rotateCamera(0.1*M_PI, 1.0f, 0.0f, 0.0f);
+      camera.setCameraPos(0.0f, -0.4f, 0.f);
+      camera.rotateCamera(-0.2*M_PI, 1.0f, 0.0f, 0.0f);
       camera.setModelPos(0.0f, 0.0f, 0.0f);
 
       shader.setUniforMat4f("u_MVP", camera.getResult());
 
      Renderer renderer;
 
-      float festa1 = 0.0f;
-      float festa2 = 0.5f;
-      float festa3 = 0.1f;
-      float inc1 = 0.01f;
-      float inc2 = 0.005f;
-      float inc3 = 0.02f;
-
       double angle = 0.0;
-      double incr = 0.0005;
+      double incr = 0.01;
 
       /* Loop until the user closes the window */
       while (!glfwWindowShouldClose(window)) {
@@ -125,10 +138,10 @@ int main(int argc, char **argv)
           camera.resetModelRotation(angle, .0f, 1.0f, 0.0f);
           shader.setUniforMat4f("u_MVP", camera.getResult());
 
-          shader.setUniform4f("u_Color", 1.0 - festa1, 1.0 - festa2, 1.0f - festa3, 0.5f);
+          shader.setUniform4f("u_Color", 1.0f, 0.0f, 0.0f, 0.5f);
           renderer.draw(GL_TRIANGLES, va, surface, shader);
-          
-          shader.setUniform4f("u_Color", festa1, festa2, festa3, 1.0f);
+
+          shader.setUniform4f("u_Color", 0.5f, 0.5f, 0.5f, 1.0f);
           renderer.draw(GL_LINES, va, lines, shader);
           
           /* Swap front and back buffers */
@@ -137,13 +150,7 @@ int main(int argc, char **argv)
           /* Poll for and process events */
           glfwPollEvents();
 
-          festa1 += inc1;
-          festa2 += inc2;
-          festa3 += inc3;
           angle += incr;
-          if (festa1 > 1.0f || festa1 < 0.0f) inc1 *= -1;
-          if (festa2 > 1.0f || festa2 < 0.0f) inc2 *= -1;
-          if (festa3 > 1.0f || festa3 < 0.0f) inc3 *= -1;
       }
 
     }
