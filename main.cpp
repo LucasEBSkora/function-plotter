@@ -49,9 +49,9 @@ int main(int argc, char **argv)
 
 
     /* Create a windowed mode window and its OpenGL context */
-    int w_width = 1080;
-    int w_height = 720;
-    window = glfwCreateWindow(w_width, w_height, "Spherical Plotter", NULL, NULL);
+    int w_width = 1920;
+    int w_height = 1080;
+    window = glfwCreateWindow(w_width, w_height, "Spherical Plotter", glfwGetPrimaryMonitor(), NULL);
     float aspect_ratio = (float)w_width/w_height;
     if (!window)
     {
@@ -78,19 +78,21 @@ int main(int argc, char **argv)
 
       FunctionPlotGenerator sphere(
         [](float theta, float phi) {
+
           return 
+            pow(cos(theta), 2)*
             (
-              0.1 +
-              (log(1 + phi)*phi
-              + sin((3.0f/2.0f)*phi))*(1 + pow(cos(2), 2)/2)
+              (
+                log(1 + phi)*phi
+                + sin((3.0f/2.0f)*phi)
+              )
             )
             /
-            (log(1+M_PI)*M_PI - 0.9)
-            +
-            sin(phi/2)*(1+pow(cos(theta*2), 1))/2
-            ;
+            (log(1+M_PI)*M_PI  - 1)
+            + 
+            pow(sin(theta), 2)*(exp(2*phi) - 1)/(exp(2*M_PI) - 1);
         },
-        N, 0.5);
+        N, 1.0f);
 
       sphere.fillBuffers();
       //docs.gl
