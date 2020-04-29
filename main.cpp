@@ -51,7 +51,7 @@ int main(int argc, char **argv)
     /* Create a windowed mode window and its OpenGL context */
     int w_width = 1920;
     int w_height = 1080;
-    window = glfwCreateWindow(w_width, w_height, "Spherical Plotter", glfwGetPrimaryMonitor(), NULL);
+    window = glfwCreateWindow(w_width, w_height, "Spherical Plotter", nullptr , NULL);
     float aspect_ratio = (float)w_width/w_height;
     if (!window)
     {
@@ -90,7 +90,7 @@ int main(int argc, char **argv)
             /
             (log(1+M_PI)*M_PI  - 1)
             + 
-            pow(sin(theta), 2)*(exp(2*phi) - 1)/(exp(2*M_PI) - 1);
+            pow(sin(theta), 2)*(exp(2*phi) - 1)/(exp(2*M_PI));
         },
         N, 1.0f);
 
