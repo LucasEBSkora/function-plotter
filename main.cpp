@@ -78,25 +78,19 @@ int main(int argc, char **argv)
 
       FunctionPlotGenerator sphere(
         [](float theta, float phi) {
-          return  
-            
+          return 
+            (
+              0.1 +
               (log(1 + phi)*phi
-              + sin((3.0f/2.0f)*phi))
-              *(
-                
-              2*sqrt(
-                1/(1+5*pow(sin(theta), 2))
-              )
-
-              )
-            // + 2*(
-            //   (pow(cos(theta), 2))/2.0f 
-            //   + 0.2  
-            // )
-              
+              + sin((3.0f/2.0f)*phi))*(1 + pow(cos(2), 2)/2)
+            )
+            /
+            (log(1+M_PI)*M_PI - 0.9)
+            +
+            sin(phi/2)*(1+pow(cos(theta*2), 1))/2
             ;
         },
-        N, 0.20f);
+        N, 0.5);
 
       sphere.fillBuffers();
       //docs.gl
@@ -119,7 +113,7 @@ int main(int argc, char **argv)
       Camera camera;
       camera.setProjAspectRatio(aspect_ratio, 1.0f);
       camera.setCameraPos(0.0f, -0.4f, 0.f);
-      camera.rotateCamera(-0.2*M_PI, 1.0f, 0.0f, 0.0f);
+      camera.rotateCamera(-0.1*M_PI, 1.0f, 0.0f, 0.0f);
       camera.setModelPos(0.0f, 0.0f, 0.0f);
 
       shader.setUniforMat4f("u_MVP", camera.getResult());
